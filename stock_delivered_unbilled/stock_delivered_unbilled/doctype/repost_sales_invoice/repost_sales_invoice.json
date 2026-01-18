@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "repost_item_valuation",
+  "repost_item_valuations",
   "affected_sales_invoice",
   "completed"
  ],
@@ -15,6 +16,7 @@
   {
    "fieldname": "repost_item_valuation",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Repost Item Valuation",
    "options": "Repost Item Valuation"
   },
@@ -29,13 +31,18 @@
    "fieldtype": "Link",
    "label": "Affected Sales Invoice",
    "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "repost_item_valuations",
+   "fieldtype": "Table MultiSelect",
+   "label": "Repost Item Valuations",
+   "options": "Repost Sales Invoice Item Valuation"
   }
  ],
- "hide_toolbar": 0,
- "in_create": 0,
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-03 02:01:21.156871",
+ "modified": "2026-01-18 11:46:14.923420",
  "modified_by": "Administrator",
  "module": "Stock Delivered Unbilled",
  "name": "Repost Sales Invoice",
@@ -54,7 +61,7 @@
    "write": 1
   }
  ],
- "read_only": 0,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

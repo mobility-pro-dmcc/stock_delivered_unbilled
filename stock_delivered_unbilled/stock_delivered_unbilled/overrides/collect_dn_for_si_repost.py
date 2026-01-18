@@ -31,6 +31,7 @@ def queue_affected_sales_invoices():
 	riv_entries = frappe.db.sql(
 		""" SELECT name from `tabRepost Item Valuation`
 		WHERE status in ('Completed') and creation <= %s and docstatus = 1 and modified > now() - interval 36 hour
+		AND name NOT IN (SELECT repost_item_valuation FROM `tabRepost Sales Invoice Item Valuation`)
 		ORDER BY timestamp(posting_date, posting_time) asc, creation asc, status asc
 		""",
 		now(),
@@ -70,9 +71,14 @@ def _queue_affected_sales_invoices(doc):
 		if not frappe.db.exists(
 			"Repost Sales Invoice", {"affected_sales_invoice": inv, "completed": 0}):
 			rsi = frappe.new_doc("Repost Sales Invoice")
-			rsi.repost_item_valuation = doc.name
+			rsi.append("repost_item_valuations", {"repost_item_valuation": doc.name})
 			rsi.affected_sales_invoice = inv
 			rsi.completed = 0
 			rsi.insert(ignore_permissions=True)
+		else:
+			rsi = frappe.get_doc("Repost Sales Invoice", {"affected_sales_invoice": inv, "completed": 0})
+			rsi.append("repost_item_valuations", {"repost_item_valuation": doc.name})
+			rsi.flags.ignore_permissions = True
+			rsi.save()
 			
 
