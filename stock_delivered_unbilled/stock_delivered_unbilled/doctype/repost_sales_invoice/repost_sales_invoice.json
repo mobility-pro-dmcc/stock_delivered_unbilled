@@ -7,10 +7,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "repost_item_valuation",
-  "repost_item_valuations",
   "affected_sales_invoice",
-  "completed"
+  "completed",
+  "repost_item_valuations",
+  "repost_item_valuation"
  ],
  "fields": [
   {
@@ -42,7 +42,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-18 11:46:14.923420",
+ "modified": "2026-01-18 17:32:06.255999",
  "modified_by": "Administrator",
  "module": "Stock Delivered Unbilled",
  "name": "Repost Sales Invoice",
