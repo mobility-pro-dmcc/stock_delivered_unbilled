@@ -4,7 +4,6 @@ from erpnext.stock.doctype.repost_item_valuation.repost_item_valuation import (
 	repost_sl_entries, 
 	repost_gl_entries, 
 	notify_error_to_stock_managers, 
-	_get_directly_dependent_vouchers,
 	in_configured_timeslot
 )
 from frappe.utils import cint, get_link_to_form, get_weekday, getdate, now, nowtime
@@ -15,12 +14,40 @@ from erpnext.stock.stock_ledger import (
 	get_items_to_be_repost,
 	repost_future_sle,
 )
-
 from rq.timeouts import JobTimeoutException
 from frappe.exceptions import QueryDeadlockError, QueryTimeoutError
 
 RecoverableErrors = (JobTimeoutException, QueryDeadlockError, QueryTimeoutError)
 
+def _get_directly_dependent_vouchers(doc):
+	"""Get stock vouchers that are directly affected by reposting
+	i.e. any one item-warehouse is present in the stock transaction"""
+
+	items = set()
+	warehouses = set()
+
+	if doc.based_on == "Transaction":
+		ref_doc = frappe.get_lazy_doc(doc.voucher_type, doc.voucher_no)
+		doc_items, doc_warehouses = ref_doc.get_items_and_warehouses()
+		items.update(doc_items)
+
+		sles = get_items_to_be_repost(doc.voucher_type, doc.voucher_no)
+		sle_items = {sle.item_code for sle in sles}
+		sle_warehouses = {sle.warehouse for sle in sles}
+		items.update(sle_items)
+		warehouses.update(sle_warehouses)
+	else:
+		items.add(doc.item_code)
+		warehouses.add(doc.warehouse)
+
+	affected_vouchers = get_future_stock_vouchers(
+		posting_date=doc.posting_date,
+		posting_time=doc.posting_time,
+		for_warehouses=[],
+		for_items=list(items),
+		company=doc.company,
+	)
+	return affected_vouchers
 
 def queue_affected_sales_invoices():
 	"""
