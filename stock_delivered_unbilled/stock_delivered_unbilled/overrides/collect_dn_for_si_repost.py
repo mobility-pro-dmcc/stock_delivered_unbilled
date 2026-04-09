@@ -90,9 +90,10 @@ def _queue_affected_sales_invoices(doc):
 		if document_type == "Delivery Note":
 			invoice_list = frappe.get_all("Sales Invoice Item", fields=["name", "parent"], filters={"delivery_note": document_name})
 			for invoice in invoice_list:
-				docstatus = frappe.db.get_value("Sales Invoice", invoice.parent, "docstatus")
-				if docstatus == 1:
-					affected_invoices.append(invoice.parent)
+				if invoice.parent not in affected_invoices:
+					docstatus = frappe.db.get_value("Sales Invoice", invoice.parent, "docstatus")
+					if docstatus == 1:
+						affected_invoices.append(invoice.parent)
 
 	for inv in affected_invoices:
 		if not frappe.db.exists(
